@@ -38,8 +38,8 @@ func main() {
 			if err != nil {
 				break
 			}
-			// name := ss.getName(regs.Orig_rax)
-			// fmt.Println(name)
+			name := ss.getName(regs.Orig_rax)
+			fmt.Printf("name: %s, id: %d \n", name, regs.Orig_rax)
 			ss.inc(regs.Orig_rax)
 		}
 
