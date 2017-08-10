@@ -11,9 +11,9 @@ func main() {
 	var err error
 	var regs syscall.PtraceRegs
 	var ss syscallCounter
+	ss = ss.init()
 
 	fmt.Println("Run: ", os.Args[1:])
-	ss.init()
 
 	cmd := exec.Command(os.Args[1], os.Args[2:]...)
 	cmd.Stderr = os.Stderr
