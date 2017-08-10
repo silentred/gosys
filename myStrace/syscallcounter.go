@@ -10,7 +10,7 @@ import (
 
 type syscallCounter []int
 
-const maxSyscalls = 303
+const maxSyscalls = 403
 
 func (s syscallCounter) init() syscallCounter {
 	s = make(syscallCounter, maxSyscalls)
