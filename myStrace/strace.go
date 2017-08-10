@@ -1,17 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
-	"time"
 )
 
 func main() {
 	var err error
-	cmdName := os.Args[1]
+	var regs syscall.PtraceRegs
+	var ss syscallCounter
 
-	cmd := exec.Command(cmdName, os.Args[2:]...)
+	fmt.Println("Run: ", os.Args[1:])
+	ss.init()
+
+	cmd := exec.Command(os.Args[1], os.Args[2:]...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
@@ -19,10 +23,31 @@ func main() {
 		Ptrace: true,
 	}
 
-	err = cmd.Run()
+	cmd.Start()
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Printf("Wait err %v \n", err)
+	}
+
+	pid := cmd.Process.Pid
+
+	err = syscall.PtraceGetRegs(pid, &regs)
 	if err != nil {
 		panic(err)
 	}
 
-	time.Sleep(5 * time.Second)
+	name := ss.getName(regs.Orig_rax)
+	fmt.Println(name)
+
+	ss.inc(regs.Orig_rax)
+
+	err = syscall.PtraceSyscall(pid, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = syscall.Wait4(pid, nil, 0, nil)
+	if err != nil {
+		panic(err)
+	}
 }
